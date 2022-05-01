@@ -1,6 +1,7 @@
 {
   "version": 2,
   "projects": {
-    "account": "apps/account"
+    "account": "apps/account",
+    "interfaces": "libs/interfaces"
   }
 }
