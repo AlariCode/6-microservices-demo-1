@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@purple/contracts": ["libs/contracts/src/index.ts"],
       "@purple/interfaces": ["libs/interfaces/src/index.ts"]
     }
   },
