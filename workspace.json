@@ -2,6 +2,7 @@
   "version": 2,
   "projects": {
     "account": "apps/account",
+    "api": "apps/api",
     "contracts": "libs/contracts",
     "interfaces": "libs/interfaces"
   }
