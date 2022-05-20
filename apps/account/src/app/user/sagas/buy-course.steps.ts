@@ -1,4 +1,4 @@
-import { CourseGetCourse, PaymentGenerateLink } from '@purple/contracts';
+import { CourseGetCourse, PaymentCheck, PaymentGenerateLink } from '@purple/contracts';
 import { PurchaseState } from '@purple/interfaces';
 import { UserEntity } from '../entities/user.entity';
 import { BuyCourseSagaState } from './buy-course.state';
@@ -29,5 +29,54 @@ export class BuyCourseSagaStateStarted extends BuyCourseSagaState {
 	public async cencel(): Promise<{ user: UserEntity; }> {
 		this.saga.setState(PurchaseState.Cenceled, this.saga.courseId);
 		return { user: this.saga.user };
+	}
+}
+
+export class BuyCourseSagaStateWaitingForPayment extends BuyCourseSagaState {
+	public pay(): Promise<{ paymentLink: string; user: UserEntity; }> {
+		throw new Error('Нельзя создать ссылку на оплату в процессе');
+	}
+	public async checkPayment(): Promise<{ user: UserEntity; }> {
+		const { status } = await this.saga.rmqService.send<PaymentCheck.Request, PaymentCheck.Response>(PaymentCheck.topic, {
+			userId: this.saga.user._id,
+			courseId: this.saga.courseId
+		});
+		if (status === 'canceled') {
+			this.saga.setState(PurchaseState.Cenceled, this.saga.courseId);
+			return { user: this.saga.user };
+		}
+		if (status !== 'success') {
+			return { user: this.saga.user };
+		}
+		this.saga.setState(PurchaseState.Purchased, this.saga.courseId);
+		return { user: this.saga.user };
+	}
+	public cencel(): Promise<{ user: UserEntity; }> {
+		throw new Error('Нельзя отменить платёж в процессе');
+	}
+}
+
+export class BuyCourseSagaStatePurchased extends BuyCourseSagaState {
+	public pay(): Promise<{ paymentLink: string; user: UserEntity; }> {
+		throw new Error('Нельзя оплатить купленный курс');
+	}
+	public checkPayment(): Promise<{ user: UserEntity; }> {
+		throw new Error('Нельзя проверить платёж по купленному курсу');
+	}
+	public cencel(): Promise<{ user: UserEntity; }> {
+		throw new Error('Нельзя отменить купленный курс');
+	}
+}
+
+export class BuyCourseSagaStateCanceled extends BuyCourseSagaState {
+	public pay(): Promise<{ paymentLink: string; user: UserEntity; }> {
+		this.saga.setState(PurchaseState.Started, this.saga.courseId);
+		return this.saga.getState().pay();
+	}
+	public checkPayment(): Promise<{ user: UserEntity; }> {
+		throw new Error('Нельзя проверить платёж по отменённому курсу');
+	}
+	public cencel(): Promise<{ user: UserEntity; }> {
+		throw new Error('Нельзя отменить откменённый курс');
 	}
 }
