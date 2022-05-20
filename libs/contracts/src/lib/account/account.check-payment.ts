@@ -1,5 +1,5 @@
-import { PurchaseState } from '@purple/interfaces';
 import { IsString } from 'class-validator';
+import { PaymentStatus } from '../payment/payment.check';
 
 export namespace AccountCheckPayment {
 	export const topic = 'account.check-payment.command';
@@ -13,7 +13,7 @@ export namespace AccountCheckPayment {
 	}
 
 	export class Response {
-		status: PurchaseState;
+		status: PaymentStatus;
 	}
 }
 

@@ -1,5 +1,7 @@
 import { IsString } from 'class-validator';
 
+export type PaymentStatus = 'canceled' | 'success' | 'porgress';
+
 export namespace PaymentCheck {
 	export const topic = 'payment.check.query';
 
@@ -12,7 +14,7 @@ export namespace PaymentCheck {
 	}
 
 	export class Response {
-		status: 'canceled' | 'success' | 'porgress';
+		status: PaymentStatus;
 	}
 }
 
