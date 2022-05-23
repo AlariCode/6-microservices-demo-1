@@ -7,7 +7,9 @@ import { BuyCourseSagaStateCanceled, BuyCourseSagaStatePurchased, BuyCourseSagaS
 export class BuyCourseSaga {
 	private state: BuyCourseSagaState;
 
-	constructor(public user: UserEntity, public courseId: string, public rmqService: RMQService) {}
+	constructor(public user: UserEntity, public courseId: string, public rmqService: RMQService) {
+		this.setState(user.getCourseState(courseId), courseId);
+	}
 
 	setState(state: PurchaseState, courseId: string) {
 		switch (state) {
