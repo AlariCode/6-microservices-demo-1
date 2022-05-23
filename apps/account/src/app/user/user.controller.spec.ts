@@ -7,7 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { getMongoConfig } from '../configs/mongo.config'
 import { INestApplication } from '@nestjs/common';
 import { UserRepository } from './repositories/user.repository';
-import { AccountBuyCourse, AccountLogin, AccountRegister, AccountUserInfo, CourseGetCourse, PaymentGenerateLink } from '@purple/contracts';
+import { AccountBuyCourse, AccountCheckPayment, AccountLogin, AccountRegister, AccountUserInfo, CourseGetCourse, PaymentCheck, PaymentGenerateLink } from '@purple/contracts';
 import { verify } from 'jsonwebtoken';
 
 const authLogin: AccountLogin.Request = {
@@ -91,6 +91,17 @@ describe('UserController', () => {
 				{ userId, courseId }
 			)
 		).rejects.toThrowError();
+	});
+
+	it('BuyCourse', async () => {
+		rmqService.mockReply<PaymentCheck.Response>(PaymentCheck.topic, {
+			status: 'success'
+		});
+		const res = await rmqService.triggerRoute<AccountCheckPayment.Request, AccountCheckPayment.Response>(
+			AccountCheckPayment.topic,
+			{ userId, courseId }
+		);
+		expect(res.status).toEqual('success');
 	});
 
 	afterAll(async () => {

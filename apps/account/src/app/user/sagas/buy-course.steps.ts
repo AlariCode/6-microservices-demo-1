@@ -45,11 +45,11 @@ export class BuyCourseSagaStateWaitingForPayment extends BuyCourseSagaState {
 			this.saga.setState(PurchaseState.Cenceled, this.saga.courseId);
 			return { user: this.saga.user, status: 'canceled' };
 		}
-		if (status !== 'success') {
+		if (status === 'success') {
 			return { user: this.saga.user, status: 'success' };
 		}
 		this.saga.setState(PurchaseState.Purchased, this.saga.courseId);
-		return { user: this.saga.user, status: 'porgress' };
+		return { user: this.saga.user, status: 'progress' };
 	}
 	public cencel(): Promise<{ user: UserEntity; }> {
 		throw new Error('Нельзя отменить платёж в процессе');
